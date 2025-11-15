@@ -24,23 +24,20 @@ export default function LoginPage({ setPage, setUser }) {
         return;
       }
 
-      // ✅ Successful login
       let userData = data.user;
 
-      // Force librarian role if name typed is "librarian"
+      // Librarian shortcut login
       if (name.trim().toLowerCase() === "librarian") {
-        userData = { name: "librarian", rollNo: rollNo, branch: branch };
+        userData = { name: "librarian", rollNo, branch };
       }
 
       setUser(userData);
 
-      // Redirect based on role
       if (userData.name.toLowerCase() === "librarian") {
         setPage("librarian");
       } else {
         setPage("myseats");
       }
-
     } catch (err) {
       console.error(err);
       setError("Server error: could not connect");
@@ -48,44 +45,55 @@ export default function LoginPage({ setPage, setUser }) {
   };
 
   return (
-    <div className="min-h-screen bg-blue-500 flex flex-col items-center justify-center p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-white drop-shadow-md">
-        Welcome to Lib Booking System
-      </h1>
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center px-4 py-10">
+      
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8 md:p-10 animate-fadeIn">
+        
+        <h1 className="text-2xl md:text-3xl font-extrabold text-center mb-6 text-blue-700">
+          Welcome to Lib Booking System
+        </h1>
 
-      <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-8">
-        {error && <p className="text-red-600 mb-2">{error}</p>}
+        {error && (
+          <p className="text-red-600 mb-3 text-center text-sm font-medium">
+            {error}
+          </p>
+        )}
 
-        <form className="space-y-4" onSubmit={handleLogin}>
+        <form className="space-y-5" onSubmit={handleLogin}>
+          
           <input
             type="text"
-            placeholder="Name"
+            placeholder="Enter your Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border rounded-lg p-2"
+            className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-400 outline-none"
             required
           />
+
           <input
             type="text"
-            placeholder="Roll No"
+            placeholder="Roll Number"
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
-            className="w-full border rounded-lg p-2"
+            className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-400 outline-none"
             required
           />
+
           <select
             value={branch}
             onChange={(e) => setBranch(e.target.value)}
-            className="w-full border rounded-lg p-2"
+            className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-400 outline-none"
           >
-            {["ICE","ECE","CSE","DSE","CHE","CE","BE","TE","IT","VLSI"].map(b => (
-              <option key={b} value={b}>{b}</option>
+            {["ICE", "ECE", "CSE", "DSE", "CHE", "CE", "BE", "TE", "IT", "VLSI"].map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
             ))}
           </select>
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-all"
           >
             Login
           </button>
