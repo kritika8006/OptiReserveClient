@@ -4,11 +4,18 @@ export default function AvailabilityPage({ seats }) {
   const [floors, setFloors] = useState([]);
 
   useEffect(() => {
-    const floorNames = ["Ground Floor", "First Floor", "Second Floor", "Third Floor"];
+    const floorNames = [
+      "Ground Floor",
+      "First Floor",
+      "Second Floor",
+      "Third Floor",
+    ];
+
     const grouped = floorNames.map((f) => ({
       name: f,
       seats: seats.filter((s) => s.floor === f),
     }));
+
     setFloors(grouped);
   }, [seats]);
 
@@ -28,67 +35,75 @@ export default function AvailabilityPage({ seats }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100 py-10 space-y-12">
+    <div className="min-h-screen flex flex-col items-center bg-gray-100 py-8 space-y-12">
       {floors.map((floor, idx) => (
         <div
           key={idx}
-          className="bg-white p-6 md:p-10 rounded-2xl shadow-xl w-full max-w-[1100px] border"
+          className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl 
+                     w-full max-w-[1100px] border relative"
         >
-          <h1 className="text-xl md:text-2xl font-bold text-center mb-6">
+          {/* LIFT (TOP LEFT) */}
+          <div
+            className="absolute top-3 left-3 
+                       bg-blue-100 border-2 border-blue-400 text-blue-700
+                       px-3 py-1 rounded-md font-bold shadow-sm text-[10px]"
+          >
+            Lift
+          </div>
+
+          {/* FLOOR NAME */}
+          <h1 className="text-lg sm:text-xl font-bold text-center mb-6 mt-4">
             {floor.name}
           </h1>
 
-          {/* MAIN ROW */}
+          {/* MAIN ROW: ALWAYS ROW, EVEN MOBILE */}
           <div
-            className="flex flex-col lg:flex-row items-start justify-center 
-                       gap-10 lg:gap-16 relative w-full"
+            className="flex flex-row items-start justify-center 
+                       gap-4 sm:gap-8 md:gap-12 w-full"
           >
-            {/* LIFT (TOP LEFT CORNER) */}
-            <div className="absolute lg:left-6 lg:top-6 top-2 left-2 
-                            bg-blue-100 border-2 border-blue-400 text-blue-700 
-                            px-3 py-1 rounded-md font-bold shadow-sm text-sm">
-              Lift
-            </div>
-
-            {/* LEFT SEATS GRID */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-6 lg:mt-0">
+            {/* LEFT SEATS (1–16) */}
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
               {floor.seats.slice(0, 16).map((seat) => (
                 <div
                   key={seat.id}
-                  className={`${getStatusColor(seat.status)}
-                              w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12
+                  className={`${getStatusColor(seat.status)} 
+                              w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11
                               flex items-center justify-center 
-                              rounded-md text-white font-semibold 
-                              text-xs sm:text-sm`}
+                              rounded-md text-white font-semibold
+                              text-[8px] sm:text-[10px] md:text-sm`}
                 >
                   {seat.id}
                 </div>
               ))}
             </div>
 
-            {/* CORRIDOR — FULL HEIGHT AUTO STRETCH */}
+            {/* CORRIDOR – CENTER FULL HEIGHT */}
             <div
               className="flex flex-col justify-center items-center 
-                         bg-gray-200 w-24 lg:w-20 
-                         rounded-md px-2 self-stretch"
+                         bg-gray-200 px-2 sm:px-3 md:px-4 
+                         rounded-md self-stretch"
             >
-              <span className="font-bold text-gray-700 text-xs sm:text-sm tracking-widest 
-                               rotate-0 lg:-rotate-90">
+              <span
+                className="font-bold text-gray-700 
+                           text-[8px] sm:text-[10px] md:text-sm 
+                           tracking-widest -rotate-90"
+              >
                 CORRIDOR
               </span>
             </div>
 
-            {/* RIGHT SEATS GRID + STAIRS */}
-            <div className="flex flex-col items-center lg:items-end self-stretch">
-              <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            {/* RIGHT SEATS + STAIRS */}
+            <div className="flex flex-col items-center md:items-end self-stretch">
+              {/* RIGHT SEATS (17–32) */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
                 {floor.seats.slice(16, 32).map((seat) => (
                   <div
                     key={seat.id}
-                    className={`${getStatusColor(seat.status)}
-                                w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12
+                    className={`${getStatusColor(seat.status)} 
+                                w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11
                                 flex items-center justify-center 
-                                rounded-md text-white font-semibold 
-                                text-xs sm:text-sm`}
+                                rounded-md text-white font-semibold
+                                text-[8px] sm:text-[10px] md:text-sm`}
                   >
                     {seat.id}
                   </div>
@@ -97,10 +112,10 @@ export default function AvailabilityPage({ seats }) {
 
               {/* STAIRS */}
               <div
-                className="mt-4 sm:mt-6 bg-yellow-100 border-2 border-yellow-500 
+                className="mt-3 sm:mt-4 bg-yellow-100 border-2 border-yellow-500
                            text-yellow-800 px-3 py-1 sm:px-4 sm:py-2 
-                           rounded-md font-bold shadow-sm 
-                           text-xs sm:text-sm"
+                           rounded-md font-bold shadow-sm
+                           text-[10px] sm:text-xs md:text-sm"
               >
                 Stairs
               </div>
