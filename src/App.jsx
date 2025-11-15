@@ -5,7 +5,7 @@ import AvailabilityPage from "./pages/AvailabilityPage";
 import BookingPage from "./pages/BookingPage";
 import MySeatsPage from "./pages/MySeatsPage";
 import OopsPage from "./pages/OOPSConceptsPage";
-import LibrarianDashboard from "./pages/librarianDashboard"; // <-- Import
+import LibrarianDashboard from "./pages/LibrarianDashboard"; // <-- Import
 
 export default function App() {
   const [page, setPage] = useState("login");
