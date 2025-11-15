@@ -18,7 +18,7 @@ export default function LibrarianDashboard() {
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        const res = await fetch("https://optireserveserver.onrender.com/api/seats");
+        const res = await fetch("https://optireservenserver.onrender.com/api/seats");
         const data = await res.json();
         setSeats(data);
       } catch (err) {

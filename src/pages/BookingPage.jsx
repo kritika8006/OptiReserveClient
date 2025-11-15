@@ -122,7 +122,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
     }
 
     try {
-      const res = await fetch("https://optireserveserver.onrender.com/api/seats/book", {
+      const res = await fetch("https://optireservenserver.onrender.com/api/seats/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

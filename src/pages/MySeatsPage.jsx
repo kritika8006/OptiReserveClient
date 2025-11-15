@@ -16,7 +16,7 @@ const fetchMySeats = async () => {
   if (!rollNo) return;
   try {
     setLoading(true);
-    const res = await fetch(`https://optireserveserver.onrender.com/api/seats/my/${rollNo}`);
+    const res = await fetch(`https://optireservenserver.onrender.com/api/seats/my/${rollNo}`);
     const data = await res.json();
     console.log("My Seats fetched:", data); // <-- Add this
     setMySeats(data);
@@ -36,7 +36,7 @@ const fetchMySeats = async () => {
 
   const handleRelease = async (seatId) => {
     try {
-      const res = await fetch(`https://optireserveserver.onrender.com/api/seats/${seatId}/release`, {
+      const res = await fetch(`https://optireservenserver.onrender.com/api/seats/${seatId}/release`, {
         method: "POST",
       });
       const data = await res.json();

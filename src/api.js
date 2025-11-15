@@ -1,4 +1,4 @@
-const API = "https://optireserveserver.onrender.com";
+const API = "https://optireservenserver.onrender.com";
 
 // LOGIN
 export async function loginUser(username, password) {
