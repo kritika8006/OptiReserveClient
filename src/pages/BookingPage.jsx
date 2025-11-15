@@ -47,6 +47,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
     return mid.length ? mid[0] : free[0];
   };
 
+  // Update chosenSeatId whenever floor or floors change
   useEffect(() => {
     const seat = findSuggestedSeat();
     setChosenSeatId(seat ? seat.id : null);
@@ -169,6 +170,46 @@ export default function BookingPage({ floors = [], setFloors, user }) {
       addNotification("Server error");
     }
   };
+
+  // 🔹 Auto-release booked seats and update chosenSeatId
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setFloors((prevFloors) => {
+        const updatedFloors = prevFloors.map((floor) => ({
+          ...floor,
+          seats: floor.seats.map((s) => {
+            if (
+              s.status === "booked" &&
+              s.bookingEndTime &&
+              new Date(s.bookingEndTime) <= now
+            ) {
+              return {
+                ...s,
+                status: "free",
+                studentName: "",
+                rollNo: "",
+                checkinTime: 0,
+                bookingEndTime: null,
+              };
+            }
+            return s;
+          }),
+        }));
+
+        // Update suggested seat for current floor
+        const current = updatedFloors.find((f) => f.name === selectedFloor);
+        if (current) {
+          const seat = current.seats.find((s) => s.status === "free");
+          setChosenSeatId(seat ? seat.id : null);
+        }
+
+        return updatedFloors;
+      });
+    }, 60000); // check every 1 min
+
+    return () => clearInterval(interval);
+  }, [selectedFloor, setFloors]);
 
   return (
     <div className="flex flex-col items-center px-4 py-6 w-full">
