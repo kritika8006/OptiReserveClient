@@ -12,49 +12,61 @@ export default function MySeatsPage({ rollNo, floors, setFloors }) {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     }, 4000);
   };
-const fetchMySeats = async () => {
-  if (!rollNo) return;
-  try {
-    setLoading(true);
-    const res = await fetch(`https://optireservenserver.onrender.com/api/seats/my/${rollNo}`);
-    const data = await res.json();
-    console.log("My Seats fetched:", data); // <-- Add this
-    setMySeats(data);
-  } catch (err) {
-    console.error(err);
-    addNotification("Failed to fetch your seats");
-  } finally {
-    setLoading(false);
-  }
-};
+
+  const fetchMySeats = async () => {
+    if (!rollNo) return;
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `https://optireservenserver.onrender.com/api/seats/my/${rollNo}`
+      );
+      const data = await res.json();
+      setMySeats(data);
+    } catch (err) {
+      console.error(err);
+      addNotification("Failed to fetch your seats");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchMySeats();
-    const interval = setInterval(fetchMySeats, 5000); // refresh every 5 sec
+    const interval = setInterval(fetchMySeats, 5000);
     return () => clearInterval(interval);
   }, [rollNo]);
 
   const handleRelease = async (seatId) => {
     try {
-      const res = await fetch(`https://optireservenserver.onrender.com/api/seats/${seatId}/release`, {
-        method: "POST",
-      });
+      const res = await fetch(
+        `https://optireservenserver.onrender.com/api/seats/${seatId}/release`,
+        { method: "POST" }
+      );
+
       const data = await res.json();
+
       if (res.ok) {
         addNotification(`Seat ${seatId} released`);
-        // Update local floors
+
+        // Update floors
         setFloors((prev) =>
           prev.map((floor) => ({
             ...floor,
             seats: floor.seats.map((s) =>
-             s.id === seatId
-  ? { ...s, status: "free", studentName: "", rollNo: "", checkinTime: null, endAtTime: null }
-  : s
-
+              s.id === seatId
+                ? {
+                    ...s,
+                    status: "free",
+                    studentName: "",
+                    rollNo: "",
+                    checkinTime: null,
+                    endAtTime: null,
+                  }
+                : s
             ),
           }))
         );
-        // Refresh mySeats after release
+
         fetchMySeats();
       } else {
         addNotification(data.message || "Failed to release seat");
@@ -66,46 +78,77 @@ const fetchMySeats = async () => {
   };
 
   if (loading)
-    return <div className="p-6 text-center text-gray-500">Loading your booked seats...</div>;
+    return (
+      <div className="p-6 text-center text-gray-500 text-lg">
+        Loading your booked seats...
+      </div>
+    );
 
   if (!mySeats.length)
-    return <div className="p-6 text-center text-gray-500">You have no booked seats</div>;
+    return (
+      <div className="p-6 text-center text-gray-500 text-lg">
+        You have no booked seats
+      </div>
+    );
 
   return (
-    <div className="p-6 flex flex-col items-center w-full">
-      <div className="fixed top-4 right-4 w-72 space-y-2 z-50">
+    <div className="p-4 sm:p-6 flex flex-col items-center w-full">
+      {/* Notifications */}
+      <div className="fixed top-4 right-4 w-64 sm:w-72 space-y-2 z-50">
         {notifications.map((n) => (
           <div
             key={n.id}
-            className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded shadow"
+            className="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-3 rounded shadow"
           >
             {n.msg}
           </div>
         ))}
       </div>
 
-      <h1 className="text-3xl font-bold text-blue-600 mb-4">My Booked Seats</h1>
+      {/* Page Title */}
+      <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-5 text-center">
+        My Booked Seats
+      </h1>
+
+      {/* Cards Container */}
       <div className="w-full max-w-2xl space-y-4">
         {mySeats.map((seat) => (
           <div
             key={seat.id}
-            className="flex justify-between items-center p-4 bg-white rounded shadow"
+            className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 bg-white rounded-2xl shadow-md border border-gray-200 gap-4"
           >
-            <div>
-              <p><strong>Seat ID:</strong> {seat.id}</p>
-              <p><strong>Floor:</strong> {seat.floor}</p>
-            <p><strong>Check-in:</strong>{" "}
-  {seat.checkinTime ? new Date(seat.checkinTime).toLocaleTimeString() : "-"}
-</p>
-<p><strong>Ends at:</strong>{" "}
-  {seat.endAtTime ? new Date(seat.endAtTime).toLocaleTimeString() : "-"}
-</p>
-
-
+            {/* Seat info */}
+            <div className="text-gray-700 space-y-1">
+              <p className="text-base sm:text-lg">
+                <strong>Seat ID:</strong> {seat.id}
+              </p>
+              <p className="text-base sm:text-lg">
+                <strong>Floor:</strong> {seat.floor}
+              </p>
+              <p className="text-base sm:text-lg">
+                <strong>Check-in:</strong>{" "}
+                {seat.checkinTime
+                  ? new Date(seat.checkinTime).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
+              </p>
+              <p className="text-base sm:text-lg">
+                <strong>Ends at:</strong>{" "}
+                {seat.endAtTime
+                  ? new Date(seat.endAtTime).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
+              </p>
             </div>
+
+            {/* Release Button */}
             <button
               onClick={() => handleRelease(seat.id)}
-              className="bg-red-500 text-white px-4 py-2 rounded"
+              className="w-full sm:w-auto bg-red-500 text-white py-2 px-6 rounded-xl text-lg font-semibold hover:bg-red-600 transition-all"
             >
               Release
             </button>
