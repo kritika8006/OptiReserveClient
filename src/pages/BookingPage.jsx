@@ -6,7 +6,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
   // Individual booking
   const [studentName, setStudentName] = useState(user?.name || "");
   const [rollNo, setRollNo] = useState(user?.rollNo || "");
-  const [checkinTime, setCheckinTime] = useState(0); // 0-30 min
+  const [checkinTime, setCheckinTime] = useState(0);
   const [chosenSeatId, setChosenSeatId] = useState(null);
 
   // Group booking
@@ -30,10 +30,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
 
   const currentFloor = floors.find((f) => f.name === selectedFloor);
 
-  // Calculate end time: 3 hours from now
-  const calculateEndTime = () => {
-    return new Date(Date.now() + 3 * 60 * 60 * 1000); // 3 hours in ms
-  };
+  const calculateEndTime = () => new Date(Date.now() + 3 * 60 * 60 * 1000);
 
   const findSuggestedSeat = () => {
     if (!currentFloor) return null;
@@ -81,9 +78,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
   };
 
   const handleFindGroupSeats = () => {
-    const required = groupMembers.filter(
-      (m) => m.name.trim() && m.roll.trim()
-    ).length;
+    const required = groupMembers.filter((m) => m.name.trim() && m.roll.trim()).length;
 
     if (!required) {
       addNotification("Enter at least one valid member!");
@@ -114,49 +109,51 @@ export default function BookingPage({ floors = [], setFloors, user }) {
     } else {
       bookingUsers = groupMembers.filter((m) => m.name && m.roll);
       if (bookingUsers.length !== groupSeats.length) {
-        return addNotification(
-          "Number of members must match number of seats selected"
-        );
+        return addNotification("Members count must match number of seats!");
       }
       bookingSeats = groupSeats;
     }
 
     try {
-      const res = await fetch("https://optireservenserver.onrender.com/api/seats/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          seatIds: bookingSeats,
-          studentName,
-          rollNo,
-          checkinTime: new Date().toISOString(),
-          bookingEndTime: endTime.toISOString(),
-        }),
-      });
+      const res = await fetch(
+        "https://optireservenserver.onrender.com/api/seats/book",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            seatIds: bookingSeats,
+            studentName,
+            rollNo,
+            checkinTime: new Date().toISOString(),
+            bookingEndTime: endTime.toISOString(),
+          }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
         addNotification(data.message);
 
         setFloors((prev) =>
-          prev.map((floor) => {
-            if (floor.name !== selectedFloor) return floor;
-            return {
-              ...floor,
-              seats: floor.seats.map((s) =>
-                bookingSeats.includes(s.id)
-                  ? {
-                      ...s,
-                      status: "booked",
-                      studentName,
-                      rollNo,
-                      checkinTime: new Date().toISOString(),
-                      bookingEndTime: endTime.toISOString(),
-                    }
-                  : s
-              ),
-            };
-          })
+          prev.map((floor) =>
+            floor.name !== selectedFloor
+              ? floor
+              : {
+                  ...floor,
+                  seats: floor.seats.map((s) =>
+                    bookingSeats.includes(s.id)
+                      ? {
+                          ...s,
+                          status: "booked",
+                          studentName,
+                          rollNo,
+                          checkinTime: new Date().toISOString(),
+                          bookingEndTime: endTime.toISOString(),
+                        }
+                      : s
+                  ),
+                }
+          )
         );
 
         setChosenSeatId(null);
@@ -174,35 +171,37 @@ export default function BookingPage({ floors = [], setFloors, user }) {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 w-full">
+    <div className="flex flex-col items-center px-4 py-6 w-full">
       {/* Notifications */}
-      <div className="fixed top-4 right-4 w-72 space-y-2 z-50">
+      <div className="fixed top-4 right-4 w-64 sm:w-72 space-y-2 z-50">
         {notifications.map((n) => (
           <div
             key={n.id}
-            className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded shadow"
+            className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded shadow text-sm sm:text-base"
           >
             {n.msg}
           </div>
         ))}
       </div>
 
-      <h1 className="text-3xl font-bold text-blue-600 mb-4">Booking Page</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-4">
+        Booking Page
+      </h1>
 
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md space-y-4">
-        {/* Select Floor */}
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg w-full max-w-lg space-y-4">
+        {/* Floor Selector */}
         <select
           value={selectedFloor}
           onChange={(e) => setSelectedFloor(e.target.value)}
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border rounded text-sm sm:text-base"
         >
           {floors.map((f) => (
             <option key={f.name}>{f.name}</option>
           ))}
         </select>
 
-        {/* Toggle Group Mode */}
-        <label className="flex items-center gap-2">
+        {/* Group Toggle */}
+        <label className="flex items-center gap-2 text-sm sm:text-base">
           <input
             type="checkbox"
             checked={groupMode}
@@ -211,7 +210,7 @@ export default function BookingPage({ floors = [], setFloors, user }) {
           <span className="font-semibold">Enable Group Booking</span>
         </label>
 
-        {/* Individual Booking Inputs */}
+        {/* Individual Booking */}
         {!groupMode && (
           <>
             <input
@@ -235,7 +234,10 @@ export default function BookingPage({ floors = [], setFloors, user }) {
               min={0}
               max={30}
               onChange={(e) => {
-                const val = Math.min(30, Math.max(0, parseInt(e.target.value) || 0));
+                const val = Math.min(
+                  30,
+                  Math.max(0, parseInt(e.target.value) || 0)
+                );
                 setCheckinTime(val);
               }}
               className="w-full p-3 border rounded"
@@ -251,8 +253,8 @@ export default function BookingPage({ floors = [], setFloors, user }) {
                   .filter((s) => s.status === "free")
                   .map((s) => (
                     <option key={s.id} value={s.id}>
-                      Seat {s.id} - Ends at: {calculateEndTime().toLocaleTimeString()}
-                      {s.id === chosenSeatId ? " (Selected)" : ""}
+                      Seat {s.id} (Ends at:{" "}
+                      {calculateEndTime().toLocaleTimeString()})
                     </option>
                   ))}
             </select>
@@ -263,34 +265,40 @@ export default function BookingPage({ floors = [], setFloors, user }) {
         {groupMode && (
           <div className="space-y-3">
             {groupMembers.map((m, i) => (
-              <div key={i} className="flex gap-2">
+              <div key={i} className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   placeholder={`Member ${i + 1} Name`}
                   value={m.name}
                   onChange={(e) => updateGroupMember(i, "name", e.target.value)}
-                  className="w-1/2 p-2 border rounded"
+                  className="w-full sm:w-1/2 p-2 border rounded"
                 />
                 <input
                   type="text"
                   placeholder="Roll No"
                   value={m.roll}
                   onChange={(e) => updateGroupMember(i, "roll", e.target.value)}
-                  className="w-1/2 p-2 border rounded"
+                  className="w-full sm:w-1/2 p-2 border rounded"
                 />
               </div>
             ))}
+
             <button
               onClick={handleFindGroupSeats}
-              className="w-full bg-indigo-600 text-white p-3 rounded-lg"
+              className="w-full bg-indigo-600 text-white p-3 rounded-lg text-sm sm:text-base"
             >
               Find Adjacent Seats
             </button>
+
             {groupSeats.length > 0 && (
-              <div className="space-y-1">
+              <div className="space-y-1 text-sm sm:text-base">
                 {groupSeats.map((seatId, idx) => (
-                  <p key={seatId} className="text-green-700 font-semibold">
-                    Member {groupMembers[idx]?.name || idx + 1}: Seat {seatId} - Ends at{" "}
+                  <p
+                    key={seatId}
+                    className="text-green-700 font-semibold break-words"
+                  >
+                    {groupMembers[idx]?.name || `Member ${idx + 1}`}: Seat{" "}
+                    {seatId} — Ends at{" "}
                     {calculateEndTime().toLocaleTimeString()}
                   </p>
                 ))}
@@ -299,10 +307,10 @@ export default function BookingPage({ floors = [], setFloors, user }) {
           </div>
         )}
 
-        {/* Confirm Booking */}
+        {/* Confirm */}
         <button
           onClick={handleBook}
-          className="w-full bg-blue-600 text-white p-4 rounded-lg mt-3"
+          className="w-full bg-blue-600 text-white p-3 sm:p-4 rounded-lg text-sm sm:text-lg font-semibold"
         >
           Confirm Booking
         </button>
